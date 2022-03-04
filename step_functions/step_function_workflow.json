@@ -1,0 +1,111 @@
+{
+    "StartAt": "Validateloadactivation",
+    "States": {
+      "Validateloadactivation": {
+        "Type": "Task",
+        "Resource": "arn:aws:lambda:<aws_region>:<aws_account_no>:function:elfw_check_load_active_status",
+        "Next": "Checkactivestatus",
+        "ResultPath": "$.details"
+      },
+      "Checkactivestatus": {
+        "Type": "Choice",
+        "Choices": [
+          {
+            "Not": {
+              "Variable": "$.details.status",
+              "StringEquals": "ok"
+            },
+            "Next": "load_aborted"
+          }
+        ],
+        "Default": "Fetchactivetables"
+      },
+      "load_aborted": {
+        "Type": "Pass",
+        "End": true
+      },
+      "Fetchactivetables": {
+        "Type": "Task",
+        "Resource": "arn:aws:lambda:<aws_region>:<aws_account_no>:function:etlfw_fetch_active_tables",
+        "Next": "ProcessAlltables",
+        "ResultPath": "$.items"
+      },
+      "ProcessAlltables": {
+        "Type": "Map",
+        "ItemsPath": "$.items",
+        "MaxConcurrency": 3,
+        "Iterator": {
+          "StartAt": "LoadTable",
+          "States": {
+            "LoadTable": {
+              "Comment": "Load Table",
+              "Type": "Task",
+              "Resource": "arn:aws:states:::aws-sdk:redshiftdata:executeStatement",
+              "ResultPath": "$.sql_output",
+              "Parameters": {
+                "ClusterIdentifier.$": "$.redshift_cluster_id",
+                "Database.$": "$.redshift_database",
+                "Sql.$": "$.SQL_inp",
+                "DbUser.$": "$.redshift_user"
+              },
+              "Next": "wait_on_load_table"
+            },
+            "wait_on_load_table": {
+              "Comment": "Wait before status check",
+              "Type": "Wait",
+              "Seconds": 5,
+              "Next": "load_table_status_check"
+            },
+            "load_table_status_check": {
+              "Comment": "Check Task Status",
+              "Type": "Task",
+              "Resource": "arn:aws:states:::aws-sdk:redshiftdata:describeStatement",
+              "ResultPath": "$.sql_output",
+              "Parameters": {
+                "Id.$": "$.sql_output.Id"
+              },
+              "Next": "is_load_table_complete"
+            },
+            "is_load_table_complete": {
+              "Comment": "check if load_table_complete step is complete",
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.sql_output.Status",
+                  "StringEquals": "FAILED",
+                  "Next": "load_table_failed"
+                },
+                {
+                  "Variable": "$.sql_output.Status",
+                  "StringEquals": "FINISHED",
+                  "Next": "load_table_success"
+                }
+              ],
+              "Default": "wait_on_load_table"
+            },
+            "load_table_success": {
+              "Type": "Pass",
+              "Result": {
+                "Payload": {
+                  "load_status": "load finished"
+                }
+              },
+              "End": true,
+              "ResultPath": "$.load_status"
+            },
+            "load_table_failed": {
+              "Type": "Fail",
+              "Cause": "Failure on load table",
+              "Error": "Error"
+            }
+          }
+        },
+        "Next": "load_finished"
+      },
+      "load_finished": {
+        "Type": "Pass",
+        "End": true
+      }
+    },
+    "Comment": "Done"
+  }
