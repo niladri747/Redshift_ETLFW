@@ -1,10 +1,20 @@
+/*
+Parameters:
+        batch_time  : Timestamp for this batch. Used to timestamp the log
+        source_tbl  : Schema qualified name of external source table
+        target_tbl  : Schema qualified name of local target table
+        last_mod_col: Name of "last modified" column used to find changed rows
+        log_table   : Schema qualified name of table where actions are logged
+        businessdate_tbl : table where lass load timestamps are captured for source tables
+        max_rows    : Maximum number of rows allowed to sync automatically
+/*
 CREATE OR REPLACE PROCEDURE $$schmea.sp_sync_merge_changes (
       batch_time   IN TIMESTAMP
     , source_tbl   IN VARCHAR(256) --Schema qualified with external schema
     , target_tbl   IN VARCHAR(256) --Schema qualified or `public` is assumed
     , last_mod_col IN VARCHAR(128)
     , log_table    IN VARCHAR(256)
-  	, businessdate_tbl IN VARCHAR(256)
+    , businessdate_tbl IN VARCHAR(256)
     , max_rows     IN BIGINT)
 AS $$
 DECLARE
