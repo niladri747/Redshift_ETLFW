@@ -6,7 +6,7 @@ Please follow the below steps to deploy the framework
 
 ### 1. Deploy DDLs in Postgres DB
 Login to your PG database and Execute https://github.com/niladri747/Redshift_ETLFW/blob/main/postgres/pg_deployment.sql.
-Replace $$schema with the schema of appropriate schema. This schema should be available as an external schema in Redshift.
+Replace $$schema with the appropriate schema. This schema should be available as an external schema in Redshift.
 Read the instructions in the scripts to replace the insert statements.
 
 * Make sure you have an entry for each source table that you want to be extracted in the $$schema.etlfw_load_details table. This is a one time activity
