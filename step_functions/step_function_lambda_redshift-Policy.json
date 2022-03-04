@@ -1,0 +1,46 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "lambda:InvokeFunction"
+            ],
+            "Resource": [
+                "arn:aws:lambda:<aws_region>:<aws_account_no>:function:etlfw_fetch_active_tables:*",
+                "arn:aws:lambda:<aws_region>:<aws_account_no>:function:elfw_check_load_active_status:*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "lambda:InvokeFunction"
+            ],
+            "Resource": [
+                "arn:aws:lambda:<aws_region>:<aws_account_no>:function:etlfw_fetch_active_tables",
+                "arn:aws:lambda:<aws_region>:<aws_account_no>:function:elfw_check_load_active_status"
+            ]
+        },
+        {
+            "Action": [
+                "redshift-data:ExecuteStatement",
+                "redshift-data:ListStatements",
+                "redshift-data:GetStatementResult",
+                "redshift-data:DescribeStatement"
+            ],
+            "Resource": "*",
+            "Effect": "Allow"
+        },
+        {
+            "Action": [
+                "redshift:GetClusterCredentials"
+            ],
+            "Resource": [
+                "arn:aws:redshift:<aws_region>:<aws_account_no>:cluster:<redshift_cluster_id>",
+                "arn:aws:redshift:<aws_region>:<aws_account_no>:dbuser:<redshift_cluster_id>/*",
+                "arn:aws:redshift:<aws_region>:<aws_account_no>:dbname:<redshift_cluster_id>/*"
+            ],
+            "Effect": "Allow"
+        }
+    ]
+}
