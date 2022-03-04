@@ -47,12 +47,17 @@ Deploy the 2 lambda functions.
 
 ### 4. Deploy Step functions and cloudwatch events to trigger the Step function
 1: Create an IAM role for Step Function. Associate the inline policy https://github.com/niladri747/Redshift_ETLFW/blob/main/step_functions/step_function_lambda_redshift-IAMPolicy.json. Replace the account no and aws region with appropriate values.
+
 2. Create a step function with the definition https://github.com/niladri747/Redshift_ETLFW/blobinse/main/step_functions/step_function_workflow.json. Associate the IAM role you created in the previous step.
+
 3. Go to Cloudwatch events and Create a rule, with the following configurations.
 * Click on Schedule - Fixed rate of <put appropriate intervals> minutes.
 * For Target choose Step function state machines - Choose the step function you just deployed.
 * For Configure input, choose Constant (JSON text) and insert the json text { "load_type": "incremental",   "load_frequency": "short_batch" }
 * Choose create a new role for this specific resource.
+* If you want to create a pipeline for full load pipeline create a new cloudwatch event rule with appropriate input JSON text.
+
+            
   
 ## Done, you are good to go
   
