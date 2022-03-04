@@ -5,7 +5,7 @@ Parameters:
         target_tbl  : Schema qualified name of local target table
         last_mod_col: Name of "last modified" column used to find changed rows
         log_table   : Schema qualified name of table where actions are logged
-        businessdate_tbl : table where lass load timestamps are captured for source tables
+        businessdate_tbl : schema qualified name of table where lass load timestamps are captured for source tables
         max_rows    : Maximum number of rows allowed to sync automatically
 /*
 CREATE OR REPLACE PROCEDURE $$schmea.sp_sync_merge_changes (
